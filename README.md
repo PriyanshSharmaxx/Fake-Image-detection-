@@ -20,16 +20,50 @@ Built components
 ## Architecture
 
 ```mermaid
-graph LR
-   F[Frontend (Next.js)] -->|REST API| B[Backend (FastAPI)]
-   B -->|gRPC / HTTP| M[ML Service (PyTorch gRPC server)]
-   B --> DB[(Postgres)]
-   B --> S3[(MinIO / S3)]
-   M --> S3
-   M -->|Grad-CAM| XAI[Explainability]
-   Monitoring -->|metrics| Prom[Prometheus]
-   Prom --> Graf[Grafana]
+flowchart LR
+
+U[User]
+
+subgraph Frontend
+    FE[Next.js Dashboard]
+end
+
+subgraph Backend
+    API[FastAPI API Gateway]
+    DB[(PostgreSQL)]
+end
+
+subgraph AI
+    GRPC[gRPC Service]
+    MODEL[EfficientNet-B0]
+    CAM[Grad-CAM]
+end
+
+subgraph Storage
+    S3[(MinIO / S3)]
+end
+
+U --> FE
+
+FE --> API
+
+API --> S3
+
+API --> GRPC
+
+GRPC --> MODEL
+
+MODEL --> CAM
+
+CAM --> S3
+
+GRPC --> API
+
+API --> DB
+
+API --> FE
 ```
+
 
 ## Technology Stack
 - Frontend: Next.js, React, Tailwind CSS, TypeScript
