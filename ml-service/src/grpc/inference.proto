@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package inference;
+
+service ImageDetector {
+  rpc AnalyzeImage (InferenceRequest) returns (InferenceResponse);
+}
+
+message InferenceRequest {
+  string image_s3_url = 1;
+  bool generate_heatmap = 2;
+  double threshold = 3;
+}
+
+message FaceBoundingBox {
+  float xmin = 1;
+  float ymin = 2;
+  float xmax = 3;
+  float ymax = 4;
+}
+
+message DetectionResult {
+  string classification = 1; // "real", "ai_generated", "manipulated"
+  float confidence = 2;       // Overall unified confidence
+  float spatial_score = 3;    // Spatial path raw probability
+  float freq_score = 4;       // Frequency path raw probability
+  FaceBoundingBox bbox = 5;   // Coordinates if face-based detection
+}
+
+message InferenceResponse {
+  string detection_id = 1;
+  repeated DetectionResult detections = 2;
+  string heatmap_s3_url = 3;  // S3 path to Grad-CAM heatmap visualization
+  int64 inference_time_ms = 4;
+}

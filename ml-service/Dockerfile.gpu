@@ -1,0 +1,36 @@
+FROM pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime
+
+WORKDIR /workspace
+
+# Install system dependencies (build-essential, ffmpeg, libsm6, libxext6 for opencv)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Create directories
+RUN mkdir -p src/grpc
+
+# Copy protobuf and compile locally
+COPY ./src/grpc/__init__.py ./src/grpc/__init__.py
+COPY ./src/grpc/inference.proto ./src/grpc/inference.proto
+RUN python -m grpc_tools.protoc \
+    -I. \
+    --python_out=. \
+    --grpc_python_out=. \
+    src/grpc/inference.proto
+
+# Copy the rest of the application
+COPY . .
+
+ENV PYTHONPATH=/workspace
+
+EXPOSE 50051
+
+CMD ["python", "src/grpc/server.py"]

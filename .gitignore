@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+.next/
+dist/
+
+# Environment
+.env
+.env.local
+.env.production
+
+# Docker
+volumes/
+logs/
+
+# ML
+checkpoints/
+runs/
+wandb/
+tensorboard/
+# Ignore common model artifact extensions unless intentionally committed
+*.ckpt
+*.pth
+*.pt
+# If you intentionally keep a production model in the repo, whitelist it here:
+!ml-service/models/deepfake_model_scripted.pt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

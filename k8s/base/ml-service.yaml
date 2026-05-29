@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ml-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ml-service
+  template:
+    metadata:
+      labels:
+        app: ml-service
+    spec:
+      containers:
+        - name: ml-service
+          image: deepfake-detector-ml-service:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 50051
+          env:
+            - name: GRPC_SERVER_PORT
+              value: "50051"
+            - name: S3_ENDPOINT_URL
+              value: "http://minio:9000"
+            - name: AWS_ACCESS_KEY_ID
+              value: "<SET_VIA_SECRET>"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "<SET_VIA_SECRET>"
+          resources:
+            limits:
+              nvidia.com/gpu: 1 # Requests 1 NVIDIA GPU core
+              memory: 8Gi
+            requests:
+              memory: 4Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ml-service
+spec:
+  ports:
+    - port: 50051
+      targetPort: 50051
+  selector:
+    app: ml-service
